@@ -18,6 +18,9 @@ jobs:
         with:
           python-version: '3.x'
 
+      - name: Environment Setup
+        run: pip install numpy
+
       - name: Run Tests
         run: python test.py
 
