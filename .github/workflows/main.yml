@@ -1,11 +1,20 @@
-# .github/workflows/hello.yml
-name: Hello Workflow
+# .github/workflows/run-main.yml
+name: Run main.py
 
 on: [push]
 
 jobs:
-  say-hello:
+  run-python:
     runs-on: ubuntu-latest
     steps:
-      - name: Say Hello
-        run: echo "hello, world!"
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Run main.py
+        run: python main.py
+
