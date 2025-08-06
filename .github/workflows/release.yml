@@ -1,51 +1,31 @@
-name: CI
+name: Release on main
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "master" branch
   push:
-    branches: [ "master" ]
-    tags:
-      - 'v*'
-  pull_request:
-    branches: [ "master" ]
+    branches:
+      - main
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+permissions:
+  contents: write
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: checkout code
-        uses: actions/checkout@v4
-
-      - name: set up
-        run: |
-          python -m venv .venv
-          source .venv/bin/activate
-          pip install numpy
-          python test.py
-
   release:
     runs-on: ubuntu-latest
-    needs: build
-    permissions:
-      contents: write
     steps:
-      - uses: actions/checkout@v4
-      - name: create release
-        uses: ncipollo/release-action@v1
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          tag: ${{ github.ref_name }}
-          name: Release ${{ github.ref_name }} , Run ${{ github.run_number }}
-          body: |
-            run id: ${{ github.run_id }}
-            run number: ${{ github.run_number }}
-            run attempt: ${{ github.run_attempt }}
-          allowUpdates: true```
+          python-version: '3.x'
+
+      - name: Environment setup
+        run: pip install numpy
+
+
+      - name: Run tests
+        run: python test.py
 
       - name: Get latest tag
         id: get_tag
