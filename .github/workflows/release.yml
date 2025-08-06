@@ -30,11 +30,12 @@ jobs:
           if [ -z "$latest_tag" ]; then
             new_tag="v1.0.0"
           else
-            version=$(echo $latest_tag | sed 's/^v//' | awk -F. '{$NF+=1; OFS="."; print}')
+            version=$(echo "$latest_tag" | sed 's/^v//' | awk -F. '{$NF+=1; OFS="."; print}')
             new_tag="v$version"
           fi
 
-          echo "new_tag=$new_tag"
+          echo "Latest tag: $latest_tag"
+          echo "New tag: $new_tag"
           echo "new_tag=$new_tag" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
