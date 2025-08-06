@@ -30,20 +30,20 @@ jobs:
           if [ -z "$latest_tag" ]; then
             new_tag="v1.0.0"
           else
-            version=$(echo "$latest_tag" | sed 's/^v//' | awk -F. '{$NF+=1; OFS="."; print}')
+            version=$(echo "$latest_tag" | sed 's/^v//' | awk -F. '{ $NF = $NF + 1; print $1 "." $2 "." $3 }')
             new_tag="v$version"
           fi
 
           echo "Latest tag: $latest_tag"
           echo "New tag: $new_tag"
-          echo "new_tag=$new_tag" >> $GITHUB_OUTPUT
+          echo "new_tag=${new_tag}" >> $GITHUB_ENV
 
       - name: Create GitHub Release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.get_tag.outputs.new_tag }}
-          release_name: Release ${{ steps.get_tag.outputs.new_tag }}
+          tag_name: ${{ env.new_tag }}
+          release_name: Release ${{ env.new_tag }}
           draft: false
           prerelease: false
