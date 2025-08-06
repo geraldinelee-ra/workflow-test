@@ -19,7 +19,10 @@ jobs:
           python-version: '3.x'
 
       - name: Environment Setup
-        run: pip install -r requirements.txt
+        run: |
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
 
       - name: Run Tests
         run: python test.py
@@ -28,18 +31,18 @@ jobs:
         id: get_tag
         run: |
           git fetch --tags
-          latest_tag=$(git tag --sort=-creatordate | head -n 1)
+          latest_tag=$(git tag --sort=-v:refname | head -n 1)
 
           if [ -z "$latest_tag" ]; then
             new_tag="v1.0.0"
           else
-            version=$(echo "$latest_tag" | sed 's/^v//' | awk -F. '{ $NF = $NF + 1; print $1 "." $2 "." $3 }')
+            version=$(echo "$latest_tag" | sed 's/^v//' | awk -F. '{ printf "%d.%d.%d", $1, $2, $3 + 1 }')
             new_tag="v$version"
           fi
 
           echo "Latest tag: $latest_tag"
           echo "New tag: $new_tag"
-          echo "new_tag=${new_tag}" >> $GITHUB_ENV
+          echo "new_tag=$new_tag" >> $GITHUB_ENV
 
       - name: Create GitHub Release
         uses: actions/create-release@v1
