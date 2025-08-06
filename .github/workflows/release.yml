@@ -1,52 +1,55 @@
-name: Release on Push
+name: Release on main
 
 on:
   push:
     branches:
       - main
 
+permissions:
+  contents: write
+
 jobs:
   release:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.x'
 
-      - name: Environment Setup
+      - name: Environment setup
         run: pip install numpy
 
-      - name: Run Tests
+
+      - name: Run tests
         run: python test.py
 
-      - name: Get latest tag and generate new one
+      - name: Get latest tag
         id: get_tag
         run: |
           git fetch --tags
-          latest_tag=$(git tag --sort=-creatordate | head -n 1)
-
-          if [ -z "$latest_tag" ]; then
-            new_tag="v1.0.0"
+          TAG=$(git tag --sort=-v:refname | head -n 1)
+          if [ -z "$TAG" ]; then
+            TAG="v1.0.0"
           else
-            version=$(echo "$latest_tag" | sed 's/^v//' | awk -F. '{ $NF = $NF + 1; print $1 "." $2 "." $3 }')
-            new_tag="v$version"
+            BASE=${TAG#v}
+            MAJOR=$(echo $BASE | cut -d. -f1)
+            MINOR=$(echo $BASE | cut -d. -f2)
+            PATCH=$(echo $BASE | cut -d. -f3)
+            PATCH=$((PATCH+1))
+            TAG="v$MAJOR.$MINOR.$PATCH"
           fi
-
-          echo "Latest tag: $latest_tag"
-          echo "New tag: $new_tag"
-          echo "new_tag=${new_tag}" >> $GITHUB_ENV
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ env.new_tag }}
-          release_name: Release ${{ env.new_tag }}
+          tag_name: ${{ steps.get_tag.outputs.tag }}
+          release_name: Release ${{ steps.get_tag.outputs.tag }}
           draft: false
           prerelease: false
