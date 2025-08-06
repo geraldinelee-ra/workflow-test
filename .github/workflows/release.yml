@@ -46,7 +46,6 @@ jobs:
             run number: ${{ github.run_number }}
             run attempt: ${{ github.run_attempt }}
           allowUpdates: true```
-          python test.py
 
       - name: Get latest tag
         id: get_tag
