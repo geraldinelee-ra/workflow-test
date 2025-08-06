@@ -1,5 +1,4 @@
-from main import add
+import main
 
-assert add(1, 2) == 3
-assert add(3, 5) == 8
-assert add(-1, 1) == 0
+if name == "main":
+    main.test_add()
