@@ -22,7 +22,6 @@ jobs:
 
       - name: Get latest tag and generate new one
         id: get_tag
-        shell: bash
         run: |
           git fetch --tags
           LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1) 2>/dev/null || echo "")
@@ -35,15 +34,14 @@ jobs:
             NEW_TAG="v$VERSION"
           fi
 
-          echo "New tag: $NEW_TAG"
-          echo "tag_name=$NEW_TAG" >> $GITHUB_ENV
+          echo "new_tag=$NEW_TAG" >> "$GITHUB_OUTPUT"
 
-      - name: Create Release
+      - name: Create GitHub Release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ env.tag_name }}
-          release_name: Release ${{ env.tag_name }}
+          tag_name: ${{ steps.get_tag.outputs.new_tag }}
+          release_name: Release ${{ steps.get_tag.outputs.new_tag }}
           draft: false
           prerelease: false
