@@ -3,7 +3,7 @@ import numpy
 def subtract(a, b):
     return a - b
 
-def test_add():
+def test_subtract():
     assert subtract(5, 3) == 2
 
 if __name__ == "__main__":
