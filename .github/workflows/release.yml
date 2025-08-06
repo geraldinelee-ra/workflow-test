@@ -8,6 +8,7 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -24,17 +25,17 @@ jobs:
         id: get_tag
         run: |
           git fetch --tags
-          LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1) 2>/dev/null || echo "")
-          echo "Latest tag: $LATEST_TAG"
+          latest_tag=$(git tag --sort=-creatordate | head -n 1)
 
-          if [ -z "$LATEST_TAG" ]; then
-            NEW_TAG="v1.0.0"
+          if [ -z "$latest_tag" ]; then
+            new_tag="v1.0.0"
           else
-            VERSION=$(echo $LATEST_TAG | sed 's/^v//' | awk -F. '{$NF+=1; OFS="."; print}')
-            NEW_TAG="v$VERSION"
+            version=$(echo $latest_tag | sed 's/^v//' | awk -F. '{$NF+=1; OFS="."; print}')
+            new_tag="v$version"
           fi
 
-          echo "new_tag=$NEW_TAG" >> "$GITHUB_OUTPUT"
+          echo "new_tag=$new_tag"
+          echo "new_tag=$new_tag" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
         uses: actions/create-release@v1
