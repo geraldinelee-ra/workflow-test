@@ -8,6 +8,7 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -22,6 +23,7 @@ jobs:
 
       - name: Get latest tag and generate new one
         id: generate_tag
+        shell: bash
         run: |
           git fetch --tags
           LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1) 2>/dev/null || echo "")
@@ -30,3 +32,19 @@ jobs:
           if [ -z "$LATEST_TAG" ]; then
             NEW_TAG="v1.0.0"
           else
+            VERSION=$(echo "$LATEST_TAG" | sed 's/^v//' | awk -F. '{ $NF = $NF + 1; OFS = "."; print }')
+            NEW_TAG="v$VERSION"
+          fi
+
+          echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
+          echo "::set-output name=tag::$NEW_TAG"
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.generate_tag.outputs.tag }}
+          release_name: Release ${{ steps.generate_tag.outputs.tag }}
+          draft: false
+          prerelease: false
