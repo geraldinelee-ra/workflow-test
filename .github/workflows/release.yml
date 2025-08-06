@@ -24,8 +24,4 @@ jobs:
         id: get_tag
         run: |
           git fetch --tags
-          LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1) 2>/dev/null || echo "")
-          echo "Latest tag: $LATEST_TAG"
-
-          if [ -z "$LATEST_TAG" ]; then
-            NEW_TAG="v1.0.0"
+          LA
