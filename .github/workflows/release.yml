@@ -8,6 +8,7 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -20,7 +21,7 @@ jobs:
       - name: Run Tests
         run: python test.py
 
-      - name: Get latest tag
+      - name: Get latest tag and generate new one
         id: get_tag
         shell: bash
         run: |
@@ -31,12 +32,12 @@ jobs:
           if [ -z "$LATEST_TAG" ]; then
             NEW_TAG="v1.0.0"
           else
-            VERSION=$(echo $LATEST_TAG | sed 's/^v//' | awk -F. '{$NF+=1; OFS="."; print}')
+            VERSION=$(echo "$LATEST_TAG" | sed 's/^v//' | awk -F. '{$NF+=1; OFS="."; print}')
             NEW_TAG="v$VERSION"
           fi
 
           echo "New tag: $NEW_TAG"
-          echo "tag=$NEW_TAG" >> $GITHUB_OUTPUT
+          echo "tag=$NEW_TAG" >> "$GITHUB_OUTPUT"
 
       - name: Create Release
         uses: actions/create-release@v1
